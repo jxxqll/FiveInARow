@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace FiveInRow
 {
+    /// <summary>
+    /// Board Class
+    /// </summary>
     public class Board
     {
         private Stone[,] _stones = new Stone[15, 15];
@@ -39,8 +42,15 @@ namespace FiveInRow
             IsProGame = false;
         }
 
+        /// <summary>
+        /// Drop a Stone onto an empty area
+        /// </summary>
+        /// <param name="x">X-Axis</param>
+        /// <param name="y">Y-Axis</param>
+        /// <returns></returns>
         public bool Drop(int x, int y)
         {
+            //only allow drops to an empty area
             if (_stones[x, y] == null)
             {
                 InsertMove(x, y);

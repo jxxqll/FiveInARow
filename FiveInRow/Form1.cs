@@ -12,29 +12,120 @@ namespace FiveInRow
 {
     public partial class Form1 : Form
     {
-        const int RADIUS = 30;
-        const int SENCE_RADIUS = 20;
-        const int STONE_RADIUS = 25;
+        #region Consts
+        /// <summary>
+        /// Max radius for a stone
+        /// </summary>
+        const int MAX_RADIUS = 30;
+        /// <summary>
+        /// Drawing radius for a stone
+        /// </summary>
+        const int STONE_DRAWING_RADIUS = 25;
+        /// <summary>
+        /// Sensing radius for a stone
+        /// </summary>
+        const int SENSING_RADIUS = 20;
+        /// <summary>
+        ///  Length for the Board Square 
+        /// </summary>
         const int BOARD_SIZE = 900;
+        /// <summary>
+        /// Radius for dot in the center
+        /// </summary>
         const int DOT_RADIUS = 10;
 
+        #endregion
+        /// <summary>
+        /// Board object
+        /// </summary>
         Board _board;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
             _board = new Board();
         }
 
+        /// <summary>
+        /// Axis Calculation
+        /// </summary>
+        /// <param name="XorY"></param>
+        /// <returns></returns>
+        static int CalculateAxis(int XorY)
+        {
+            int i = XorY / (2 * MAX_RADIUS);
+
+            if (i * 2 * MAX_RADIUS + MAX_RADIUS - SENSING_RADIUS <= XorY && XorY <= i * 2 * MAX_RADIUS + MAX_RADIUS + SENSING_RADIUS)
+            {
+                return i;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Draw Game Board
+        /// </summary>
+        void DrawBoard()
+        {
+            Graphics g = this.CreateGraphics();
+            Pen penBorder = new Pen(Color.Black, 2.5f);
+            //g.DrawRectangle(pen, new Rectangle(new Point(radius, radius), new Size(900 - 2 * radius, 900 - 2 * radius)));
+
+            for (int i = 0; MAX_RADIUS + i * 2 * MAX_RADIUS < BOARD_SIZE; i++)
+            {
+                //draw horizontal lines
+                g.DrawLine(penBorder, new Point(MAX_RADIUS + i * 2 * MAX_RADIUS, MAX_RADIUS), new Point(MAX_RADIUS + i * 2 * MAX_RADIUS, BOARD_SIZE - MAX_RADIUS));
+                //draw vertical lines
+                g.DrawLine(penBorder, new Point(MAX_RADIUS, MAX_RADIUS + i * 2 * MAX_RADIUS), new Point(BOARD_SIZE - MAX_RADIUS, MAX_RADIUS + i * 2 * MAX_RADIUS));
+            }
+
+            Pen penDot = new Pen(Color.Black, 10);
+
+            g.DrawEllipse(penDot, BOARD_SIZE / 2 - DOT_RADIUS / 2, BOARD_SIZE / 2 - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+            g.DrawEllipse(penDot, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+            g.DrawEllipse(penDot, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+            g.DrawEllipse(penDot, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+            g.DrawEllipse(penDot, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+        }
+
+        /// <summary>
+        /// Draw Stone
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="c"></param>
+        void DrawStone(int x, int y, Color c)
+        {
+            Point center = new Point(MAX_RADIUS + x * 2 * MAX_RADIUS, MAX_RADIUS + y * 2 * MAX_RADIUS);
+
+            Graphics g = this.CreateGraphics();
+            g.FillEllipse(new SolidBrush(c), center.X - STONE_DRAWING_RADIUS, center.Y - STONE_DRAWING_RADIUS, 2 * STONE_DRAWING_RADIUS, 2 * STONE_DRAWING_RADIUS);
+        }
+
+        #region Events
+
+        /// <summary>
+        /// MouseUp Event for Dropping a stone
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
+            //is Left click
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
+                //get click point
                 Point p = e.Location;
                 this.Text = string.Format("X: {0}, Y:{1}", p.X, p.Y);
 
-                int x = CalDot(p.X);
-                int y = CalDot(p.Y);
+                int x = CalculateAxis(p.X);
+                int y = CalculateAxis(p.Y);
 
                 if (x == -1 || y == -1)//misclick
                 {
@@ -62,51 +153,11 @@ namespace FiveInRow
             }
         }
 
-        static int CalDot(int XorY)
-        {
-            int i = XorY / (2 * RADIUS);
-
-            if (i * 2 * RADIUS + RADIUS - SENCE_RADIUS <= XorY && XorY <= i * 2 * RADIUS + RADIUS + SENCE_RADIUS)
-            {
-                return i;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        void DrawBoard()
-        {
-            Graphics g = this.CreateGraphics();
-            Pen penBorder = new Pen(Color.Black, 2.5f);
-            //g.DrawRectangle(pen, new Rectangle(new Point(radius, radius), new Size(900 - 2 * radius, 900 - 2 * radius)));
-
-            for (int i = 0; RADIUS + i * 2 * RADIUS < BOARD_SIZE; i++)
-            {
-                //draw horizontal lines
-                g.DrawLine(penBorder, new Point(RADIUS + i * 2 * RADIUS, RADIUS), new Point(RADIUS + i * 2 * RADIUS, BOARD_SIZE - RADIUS));
-                //draw vertical lines
-                g.DrawLine(penBorder, new Point(RADIUS, RADIUS + i * 2 * RADIUS), new Point(BOARD_SIZE - RADIUS, RADIUS + i * 2 * RADIUS));
-            }
-
-            Pen penDot = new Pen(Color.Black, 10);
-
-            g.DrawEllipse(penDot, BOARD_SIZE / 2 - DOT_RADIUS / 2, BOARD_SIZE / 2 - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
-            g.DrawEllipse(penDot, 3 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, 3 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
-            g.DrawEllipse(penDot, 11 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, 11 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
-            g.DrawEllipse(penDot, 3 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, 11 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
-            g.DrawEllipse(penDot, 11 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, 3 * 2 * RADIUS + RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
-        }
-
-        void DrawStone(int x, int y, Color c)
-        {
-            Point center = new Point(RADIUS + x * 2 * RADIUS, RADIUS + y * 2 * RADIUS);
-
-            Graphics g = this.CreateGraphics();
-            g.FillEllipse(new SolidBrush(c), center.X - STONE_RADIUS, center.Y - STONE_RADIUS, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
-        }
-
+        /// <summary>
+        /// Redraw Board
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             DrawBoard();
@@ -119,48 +170,31 @@ namespace FiveInRow
             }
         }
 
+        /// <summary>
+        /// ToolStripMenu click event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             NewGame();
         }
 
+        /// <summary>
+        /// ToolStripMenu click event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void regretToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Regret();
         }
 
-        void Regret()
-        {
-            if (!this._board.IsGameOver && this._board.StoneCount > 0)
-            {
-                this.Invalidate();
-                this._board.RemoveLastMove();
-            }
-        }
-
-        void NewGame()
-        {
-            MBox bx = new MBox("Start new Game?");
-            bx.StartPosition = FormStartPosition.CenterParent;
-            var result = bx.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.Yes)
-            {
-                this._board = new Board();
-                this.Invalidate();
-            }
-        }
-
-        void Exit()
-        {
-            MBox bx = new MBox("Exit?");
-            bx.StartPosition = FormStartPosition.CenterParent;
-            var result = bx.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.Yes)
-            {
-                Application.Exit();
-            }
-        }
-
+        /// <summary>
+        /// Hot Key Cntrol
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -176,5 +210,52 @@ namespace FiveInRow
                     break;
             }
         }
+        #endregion
+
+
+        #region GameControlFunctions
+        /// <summary>
+        /// Regret
+        /// </summary>
+        void Regret()
+        {
+            if (!this._board.IsGameOver && this._board.StoneCount > 0)
+            {
+                this.Invalidate();
+                this._board.RemoveLastMove();
+            }
+        }
+
+        /// <summary>
+        /// Start new game
+        /// </summary>
+        void NewGame()
+        {
+            MBox bx = new MBox("Start new Game?");
+            bx.StartPosition = FormStartPosition.CenterParent;
+            var result = bx.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                this._board = new Board();
+                this.Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Exit Game
+        /// </summary>
+        void Exit()
+        {
+            MBox bx = new MBox("Exit?");
+            bx.StartPosition = FormStartPosition.CenterParent;
+            var result = bx.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        }
+        #endregion
+
+
     }
 }

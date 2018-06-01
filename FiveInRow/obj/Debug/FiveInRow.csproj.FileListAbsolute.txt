@@ -19,3 +19,14 @@ D:\Github\FiveInRow\FiveInRow\obj\Debug\FiveInRow.csproj.GenerateResource.cache
 D:\Github\FiveInRow\FiveInRow\obj\Debug\FiveInRow.csproj.CoreCompileInputs.cache
 D:\Github\FiveInRow\FiveInRow\obj\Debug\FiveInRow.exe
 D:\Github\FiveInRow\FiveInRow\obj\Debug\FiveInRow.pdb
+D:\Github\FiveInARow\FiveInRow\bin\Debug\FiveInRow.exe.config
+D:\Github\FiveInARow\FiveInRow\bin\Debug\FiveInRow.exe
+D:\Github\FiveInARow\FiveInRow\bin\Debug\FiveInRow.pdb
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.csprojAssemblyReference.cache
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.Form1.resources
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.MBox.resources
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.Properties.Resources.resources
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.csproj.GenerateResource.cache
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.csproj.CoreCompileInputs.cache
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.exe
+D:\Github\FiveInARow\FiveInRow\obj\Debug\FiveInRow.pdb
