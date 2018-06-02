@@ -10,7 +10,7 @@ namespace FiveInRow
     {
         int _x;
         int _y;
-        bool _black;
+        Board.StoneColor _color;
 
         public int X
         {
@@ -24,10 +24,10 @@ namespace FiveInRow
             set { this._y = value; }
         }
 
-        public bool Color
+        public Board.StoneColor Color
         {
-            get { return this._black; }
-            set { this._black = value; }
+            get { return this._color; }
+            set { this._color = value; }
         }
     }
 

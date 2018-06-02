@@ -12,20 +12,37 @@ namespace FiveInRow
     /// </summary>
     public class Board
     {
+        /// <summary>
+        /// All the points on the board
+        /// </summary>
         private Stone[,] _stones = new Stone[15, 15];
-        private readonly List<int[]> _moves = new List<int[]>(225);
-
+        /// <summary>
+        /// Num of stones
+        /// </summary>
         public int StoneCount { get; set; }
-        public bool CurrentMoveColor
+        /// <summary>
+        /// Current move color. 1: black move / 0: white move
+        /// </summary>
+        public StoneColor CurrentMoveColor
         {
             get
             {
-                return this.StoneCount % 2 != 0;
+                return (StoneColor)(this.StoneCount % 2);
             }
         }
+        /// <summary>
+        /// Game over flag
+        /// </summary>
         public bool IsGameOver { get; set; }
+        /// <summary>
+        /// Is this a pro game
+        /// </summary>
         public bool IsProGame { get; set; }
-
+        #region Moves
+        private readonly List<int[]> _moves = new List<int[]>(225);
+        /// <summary>
+        /// Move list
+        /// </summary>
         public List<int[]> Moves
         {
             get
@@ -33,8 +50,11 @@ namespace FiveInRow
                 return this._moves;
             }
         }
+        #endregion
 
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Board()
         {
             StoneCount = 0;
@@ -43,14 +63,14 @@ namespace FiveInRow
         }
 
         /// <summary>
-        /// Drop a Stone onto an empty area
+        /// Drop a Stone onto an empty point
         /// </summary>
         /// <param name="x">X-Axis</param>
         /// <param name="y">Y-Axis</param>
-        /// <returns></returns>
+        /// <returns>True: allow to drop that point / False: Unable to drop to that point</returns>
         public bool Drop(int x, int y)
         {
-            //only allow drops to an empty area
+            //only allow drops to an empty point
             if (_stones[x, y] == null)
             {
                 InsertMove(x, y);
@@ -59,18 +79,25 @@ namespace FiveInRow
             return false;
         }
 
+        /// <summary>
+        /// Insert a new move
+        /// </summary>
+        /// <param name="x">X-Axis</param>
+        /// <param name="y">Y-Axis</param>
         private void InsertMove(int x, int y)
         {
             this.StoneCount++;
             int[] data = new int[3];
             data[0] = x;
             data[1] = y;
-            data[2] = this.CurrentMoveColor ? 1 : 0;
+            data[2] = (int)this.CurrentMoveColor;
             this._moves.Add(data);
             _stones[x, y] = new Stone { Color = this.CurrentMoveColor };
-
         }
 
+        /// <summary>
+        /// Remove last move
+        /// </summary>
         public void RemoveLastMove()
         {
             int[] last = this._moves[this.StoneCount - 1];
@@ -79,6 +106,11 @@ namespace FiveInRow
             this.StoneCount--;
         }
 
+        #region Game Judging Methods
+        /// <summary>
+        /// Judge whether the game is over
+        /// </summary>
+        /// <returns>true: game over / false: continue to game</returns>
         public bool Judge()
         {
             //judge 5
@@ -96,7 +128,7 @@ namespace FiveInRow
                 return true;
 
             //pro game & black
-            if (this.IsProGame && this.CurrentMoveColor)
+            if (this.IsProGame && this.CurrentMoveColor == StoneColor.Black)
             {
                 //judge over5
                 if (result.Max() > 5)
@@ -236,7 +268,6 @@ namespace FiveInRow
         }
         #endregion
 
-
         bool Judge44(int x, int y)
         {
             return false;
@@ -269,7 +300,6 @@ namespace FiveInRow
             }
             return Max;
         }
-
 
         int JudgeRightSlash44(int x, int y)
         {
@@ -356,8 +386,18 @@ namespace FiveInRow
             }
             return Max;
         }
+        #endregion
+
+        public enum StoneColor
+        {
+            Black = 1,
+            White = 0
+        }
     }
 
+    /// <summary>
+    /// Is current move a fault
+    /// </summary>
     public class FaultException : Exception
     {
         public FaultType Type { get; set; }
@@ -368,11 +408,14 @@ namespace FiveInRow
         }
     }
 
+    /// <summary>
+    /// Type of fault
+    /// </summary>
     public enum FaultType
     {
         double3,
         double4,
-        over5,
+        over5
     }
 
 }

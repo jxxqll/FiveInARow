@@ -74,6 +74,17 @@ namespace FiveInRow
         void DrawBoard()
         {
             Graphics g = this.CreateGraphics();
+
+            /*
+            #region Draw Background
+            //Draw Background Color
+            SolidBrush myBrush = new SolidBrush(Color.Red);
+            g.FillRectangle(myBrush, new Rectangle(0, 0, BOARD_SIZE, BOARD_SIZE));
+            #endregion
+            */
+
+            #region Draw grids
+            
             Pen penBorder = new Pen(Color.Black, 2.5f);
             //g.DrawRectangle(pen, new Rectangle(new Point(radius, radius), new Size(900 - 2 * radius, 900 - 2 * radius)));
 
@@ -84,7 +95,10 @@ namespace FiveInRow
                 //draw vertical lines
                 g.DrawLine(penBorder, new Point(MAX_RADIUS, MAX_RADIUS + i * 2 * MAX_RADIUS), new Point(BOARD_SIZE - MAX_RADIUS, MAX_RADIUS + i * 2 * MAX_RADIUS));
             }
+            #endregion
 
+
+            #region Draw 5 dots
             Pen penDot = new Pen(Color.Black, 10);
 
             g.DrawEllipse(penDot, BOARD_SIZE / 2 - DOT_RADIUS / 2, BOARD_SIZE / 2 - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
@@ -92,14 +106,25 @@ namespace FiveInRow
             g.DrawEllipse(penDot, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
             g.DrawEllipse(penDot, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
             g.DrawEllipse(penDot, 11 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, 3 * 2 * MAX_RADIUS + MAX_RADIUS - DOT_RADIUS / 2, DOT_RADIUS, DOT_RADIUS);
+            #endregion
+
         }
 
         /// <summary>
         /// Draw Stone
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="c"></param>
+        /// <param name="x">X-Axis</param>
+        /// <param name="y">Y-Axis</param>
+        void DrawStone(int x, int y)
+        {
+            DrawStone(x, y, _board.CurrentMoveColor == Board.StoneColor.Black ? Color.Black : Color.White);
+        }
+        /// <summary>
+        /// Draw Stone
+        /// </summary>
+        /// <param name="x">X-Axis</param>
+        /// <param name="y">Y-Axis</param>
+        /// <param name="c">Color</param>
         void DrawStone(int x, int y, Color c)
         {
             Point center = new Point(MAX_RADIUS + x * 2 * MAX_RADIUS, MAX_RADIUS + y * 2 * MAX_RADIUS);
@@ -117,31 +142,30 @@ namespace FiveInRow
         /// <param name="e"></param>
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            //is Left click
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            //Left click to drop a Stone
+            if (e.Button == MouseButtons.Left)
             {
                 //get click point
                 Point p = e.Location;
                 this.Text = string.Format("X: {0}, Y:{1}", p.X, p.Y);
 
-                int x = CalculateAxis(p.X);
-                int y = CalculateAxis(p.Y);
+                int x = CalculateAxis(p.X); //X-Axis
+                int y = CalculateAxis(p.Y); //Y-Axis
 
-                if (x == -1 || y == -1)//misclick
+                if (!_board.IsGameOver && x > 0 && y > 0) //game is not over and (x,y) is a valid value
                 {
-
-                }
-                else if (!this._board.IsGameOver)
-                {
-                    if (_board.Drop(x, y))
+                    if (_board.Drop(x, y)) //is able to drop to that point
                     {
-                        DrawStone(x, y, _board.CurrentMoveColor ? Color.Black : Color.White);
+                        //Draw stone
+                        DrawStone(x, y);
+
                         try
                         {
+                            // Judge game
                             if (this._board.Judge())
                             {
                                 this._board.IsGameOver = true;
-                                MessageBox.Show(string.Format("{0} wins", this._board.CurrentMoveColor ? "Black" : "White"));
+                                MessageBox.Show(string.Format("{0} wins", this._board.CurrentMoveColor == Board.StoneColor.Black ? "Black" : "White"));
                             }
                         }
                         catch (FaultException ex)
@@ -149,6 +173,26 @@ namespace FiveInRow
                             MessageBox.Show("this is a fault");
                         }
                     }
+                }
+            }
+
+            //Right click to regret last move
+            if (e.Button == MouseButtons.Right)
+            {
+                //get click point
+                Point p = e.Location;
+                this.Text = string.Format("X: {0}, Y:{1}", p.X, p.Y);
+
+                int x = CalculateAxis(p.X); //X-Axis
+                int y = CalculateAxis(p.Y); //Y-Axis
+
+                int[] lastMove = _board.Moves.Last();
+                //Tell if current right click is on the last move
+                if (x == lastMove[0] && y == lastMove[1] && (int)_board.CurrentMoveColor == lastMove[2])
+                {
+                    _board.RemoveLastMove();
+                    //redraw
+                    this.Refresh();
                 }
             }
         }
@@ -159,6 +203,14 @@ namespace FiveInRow
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            Redraw();
+        }
+
+        /// <summary>
+        /// Draw / Redraw the board
+        /// </summary>
+        void Redraw()
         {
             DrawBoard();
 
@@ -177,7 +229,7 @@ namespace FiveInRow
         /// <param name="e"></param>
         private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            NewGame();
+            StartNewGame();
         }
 
         /// <summary>
@@ -200,7 +252,7 @@ namespace FiveInRow
             switch (e.KeyCode)
             {
                 case Keys.F5:
-                    NewGame();
+                    StartNewGame();
                     break;
                 case Keys.F3:
                     Regret();
@@ -229,7 +281,7 @@ namespace FiveInRow
         /// <summary>
         /// Start new game
         /// </summary>
-        void NewGame()
+        void StartNewGame()
         {
             MBox bx = new MBox("Start new Game?");
             bx.StartPosition = FormStartPosition.CenterParent;
