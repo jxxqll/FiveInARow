@@ -117,7 +117,7 @@ namespace FiveInRow
         /// <param name="y">Y-Axis</param>
         void DrawStone(int x, int y)
         {
-            DrawStone(x, y, _board.CurrentMoveColor == Board.StoneColor.Black ? Color.Black : Color.White);
+            DrawStone(x, y, _board.CurrentMoveColor == Board.StoneColor.BALCK ? Color.Black : Color.White);
         }
         /// <summary>
         /// Draw Stone
@@ -165,7 +165,7 @@ namespace FiveInRow
                             if (this._board.Judge())
                             {
                                 this._board.IsGameOver = true;
-                                MessageBox.Show(string.Format("{0} wins", this._board.CurrentMoveColor == Board.StoneColor.Black ? "Black" : "White"));
+                                MessageBox.Show(string.Format("{0} wins", this._board.CurrentMoveColor == Board.StoneColor.BALCK ? "Black" : "White"));
                             }
                         }
                         catch (FaultException ex)

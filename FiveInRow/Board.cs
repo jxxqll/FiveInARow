@@ -13,9 +13,21 @@ namespace FiveInRow
     public class Board
     {
         /// <summary>
+        /// Stone color definition
+        /// </summary>
+        public struct StoneColor
+        {
+            public static int BALCK = 1;
+            public static int WHITE = 0;
+            public static int EMPTY = -1;
+        }
+
+        public const int BoardSize = 15;
+
+        /// <summary>
         /// All the points on the board
         /// </summary>
-        private Stone[,] _stones = new Stone[15, 15];
+        private int[,] _stones = new int[BoardSize, BoardSize];
         /// <summary>
         /// Num of stones
         /// </summary>
@@ -23,11 +35,11 @@ namespace FiveInRow
         /// <summary>
         /// Current move color. 1: black move / 0: white move
         /// </summary>
-        public StoneColor CurrentMoveColor
+        public int CurrentMoveColor
         {
             get
             {
-                return (StoneColor)(this.StoneCount % 2);
+                return (this.StoneCount % 2);
             }
         }
         /// <summary>
@@ -38,28 +50,29 @@ namespace FiveInRow
         /// Is this a pro game
         /// </summary>
         public bool IsProGame { get; set; }
-        #region Moves
-        private readonly List<int[]> _moves = new List<int[]>(225);
         /// <summary>
         /// Move list
         /// </summary>
-        public List<int[]> Moves
-        {
-            get
-            {
-                return this._moves;
-            }
-        }
-        #endregion
+        public List<int[]> Moves { get; } = new List<int[]>(225);
 
         /// <summary>
         /// Constructor
         /// </summary>
         public Board()
         {
+            //initialise
             StoneCount = 0;
             IsGameOver = false;
             IsProGame = false;
+
+            //set every point to empty
+            for (int i = 0; i < BoardSize; i++)
+            {
+                for (int j = 0; j < BoardSize; j++)
+                {
+                    _stones[i, j] = StoneColor.EMPTY;
+                }
+            }
         }
 
         /// <summary>
@@ -71,7 +84,7 @@ namespace FiveInRow
         public bool Drop(int x, int y)
         {
             //only allow drops to an empty point
-            if (_stones[x, y] == null)
+            if (_stones[x, y] == StoneColor.EMPTY)
             {
                 InsertMove(x, y);
                 return true;
@@ -86,13 +99,20 @@ namespace FiveInRow
         /// <param name="y">Y-Axis</param>
         private void InsertMove(int x, int y)
         {
+            //count up num of stone
             this.StoneCount++;
+
+            //create stone info
             int[] data = new int[3];
             data[0] = x;
             data[1] = y;
-            data[2] = (int)this.CurrentMoveColor;
-            this._moves.Add(data);
-            _stones[x, y] = new Stone { Color = this.CurrentMoveColor };
+            data[2] = this.CurrentMoveColor;
+
+            ///add stone to move
+            this.Moves.Add(data);
+
+            //add stone to board
+            _stones[x, y] = this.CurrentMoveColor;
         }
 
         /// <summary>
@@ -100,9 +120,9 @@ namespace FiveInRow
         /// </summary>
         public void RemoveLastMove()
         {
-            int[] last = this._moves[this.StoneCount - 1];
-            _stones[last[0], last[1]] = null;
-            this._moves.RemoveAt(this.StoneCount - 1);
+            int[] last = this.Moves[this.StoneCount - 1];
+            _stones[last[0], last[1]] = StoneColor.EMPTY;
+            this.Moves.RemoveAt(this.StoneCount - 1);
             this.StoneCount--;
         }
 
@@ -114,7 +134,7 @@ namespace FiveInRow
         public bool Judge()
         {
             //judge 5
-            int[] last = this._moves.Last();
+            int[] last = this.Moves.Last();
             int x = last[0], y = last[1];
 
             int[] result = new int[4];
@@ -128,7 +148,7 @@ namespace FiveInRow
                 return true;
 
             //pro game & black
-            if (this.IsProGame && this.CurrentMoveColor == StoneColor.Black)
+            if (this.IsProGame && this.CurrentMoveColor == StoneColor.BALCK)
             {
                 //judge over5
                 if (result.Max() > 5)
@@ -163,7 +183,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b - xl] != null && _stones[xl, b - xl].Color == this.CurrentMoveColor)
+                if (_stones[xl, b - xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -180,7 +200,6 @@ namespace FiveInRow
             return Max;
         }
 
-
         int JudgeRightSlash(int x, int y)
         {
             int b = y - x;
@@ -195,7 +214,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b + xl] != null && _stones[xl, b + xl].Color == this.CurrentMoveColor)
+                if (_stones[xl, b + xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -222,7 +241,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, y] != null && _stones[xl, y].Color == this.CurrentMoveColor)
+                if (_stones[xl, y] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -250,7 +269,7 @@ namespace FiveInRow
 
             while (yl <= rightLimit)
             {
-                if (_stones[x, yl] != null && _stones[x, yl].Color == this.CurrentMoveColor)
+                if (_stones[x, yl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -284,7 +303,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b - xl] != null && _stones[xl, b - xl].Color == this.CurrentMoveColor)
+                if (_stones[xl, b - xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -315,7 +334,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b + xl] != null && _stones[xl, b + xl].Color == this.CurrentMoveColor)
+                if (_stones[xl, b + xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -342,7 +361,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, y] != null && _stones[xl, y].Color == this.CurrentMoveColor)
+                if (_stones[xl, y] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -370,7 +389,7 @@ namespace FiveInRow
 
             while (yl <= rightLimit)
             {
-                if (_stones[x, yl] != null && _stones[x, yl].Color == this.CurrentMoveColor)
+                if (_stones[x, yl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -386,13 +405,10 @@ namespace FiveInRow
             }
             return Max;
         }
+
+
         #endregion
 
-        public enum StoneColor
-        {
-            Black = 1,
-            White = 0
-        }
     }
 
     /// <summary>
