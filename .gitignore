@@ -1,0 +1,12 @@
+
+*.pdb
+FiveInRow/bin/Debug/FiveInRow.exe.config
+FiveInRow/bin/Debug/FiveInRow.exe
+.vs/*
+FiveInRow/obj/Debug/FiveInRow.exe
+*.exe
+FiveInRow/obj/Debug/FiveInRow.csproj.CoreCompileInputs.cache
+FiveInRow/obj/Debug/FiveInRow.Form1.resources
+FiveInRow/obj/*
+FiveInRow/bin/*
+*.ide-shm
