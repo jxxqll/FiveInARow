@@ -45,7 +45,10 @@ namespace FiveInRow
         /// <summary>
         /// Game over flag
         /// </summary>
-        public bool IsGameOver { get; set; }
+        public bool IsGameOver
+        {
+            get; set;
+        }
         /// <summary>
         /// Is this a pro game
         /// </summary>
@@ -62,7 +65,6 @@ namespace FiveInRow
         {
             //initialise
             StoneCount = 0;
-            IsGameOver = false;
             IsProGame = false;
 
             //set every point to empty
@@ -153,7 +155,7 @@ namespace FiveInRow
                 //judge over5
                 if (result.Max() > 5)
                 {
-                    throw new FaultException(FaultType.over5);
+                    throw new FoulException(FoulType.over5);
                 }
                 else
                 {
@@ -233,29 +235,38 @@ namespace FiveInRow
 
         int JudgeHorizontal(int x, int y)
         {
-            int leftLimit = x - 4 > 0 ? x - 4 : 0;
-            int rightLimit = x + 4 > 14 ? 14 : x + 4;
+            int count = 1;
+            int tempX = x;
 
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
+            while (true)
             {
-                if (_stones[xl, y] == this.CurrentMoveColor)
+                tempX--;
+                if (tempX < 0 || _stones[tempX, y] != CurrentMoveColor)
                 {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
+                    break;
                 }
                 else
                 {
-                    count = 0;
+                    count++;
                 }
-                xl++;
             }
-            return Max;
+
+            tempX = x;
+
+            while (true)
+            {
+                tempX++;
+                if (tempX > 14 || _stones[tempX, y] != CurrentMoveColor)
+                {
+                    break;
+                }
+                else
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         int JudgeVertical(int x, int y)
@@ -412,22 +423,22 @@ namespace FiveInRow
     }
 
     /// <summary>
-    /// Is current move a fault
+    /// Is current move a foul
     /// </summary>
-    public class FaultException : Exception
+    public class FoulException : Exception
     {
-        public FaultType Type { get; set; }
+        public FoulType Type { get; set; }
 
-        public FaultException(FaultType fType)
+        public FoulException(FoulType fType)
         {
             this.Type = fType;
         }
     }
 
     /// <summary>
-    /// Type of fault
+    /// Type of foul
     /// </summary>
-    public enum FaultType
+    public enum FoulType
     {
         double3,
         double4,

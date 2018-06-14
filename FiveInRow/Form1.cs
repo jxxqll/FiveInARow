@@ -168,7 +168,7 @@ namespace FiveInRow
                                 MessageBox.Show(string.Format("{0} wins", this._board.CurrentMoveColor == Board.StoneColor.BALCK ? "Black" : "White"));
                             }
                         }
-                        catch (FaultException ex)
+                        catch (FoulException ex)
                         {
                             MessageBox.Show("this is a fault");
                         }
@@ -177,7 +177,7 @@ namespace FiveInRow
             }
 
             //Right click to regret last move
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right && _board.Moves.Count>0)
             {
                 //get click point
                 Point p = e.Location;
