@@ -12,43 +12,29 @@ namespace FiveInRow
     /// </summary>
     public class Board
     {
-        /// <summary>
-        /// Stone color definition
-        /// </summary>
-        public struct StoneColor
-        {
-            public static int BALCK = 1;
-            public static int WHITE = 0;
-            public static int EMPTY = -1;
-        }
-
+        // BoardSize
         public const int BoardSize = 15;
 
-        /// <summary>
-        /// All the points on the board
-        /// </summary>
-        private int[,] _stones = new int[BoardSize, BoardSize];
+        // board
+        private readonly int[,] board = new int[BoardSize, BoardSize];
+
+
         /// <summary>
         /// Num of stones
         /// </summary>
         public int StoneCount { get; set; }
+
         /// <summary>
         /// Current move color. 1: black move / 0: white move
         /// </summary>
         public int CurrentMoveColor
         {
-            get
-            {
-                return (this.StoneCount % 2);
-            }
+            get { return (this.StoneCount % 2); }
         }
         /// <summary>
         /// Game over flag
         /// </summary>
-        public bool IsGameOver
-        {
-            get; set;
-        }
+        public bool IsGameOver { get; set; }
         /// <summary>
         /// Is this a pro game
         /// </summary>
@@ -57,6 +43,7 @@ namespace FiveInRow
         /// Move list
         /// </summary>
         public List<int[]> Moves { get; } = new List<int[]>(225);
+
 
         /// <summary>
         /// Constructor
@@ -72,7 +59,7 @@ namespace FiveInRow
             {
                 for (int j = 0; j < BoardSize; j++)
                 {
-                    _stones[i, j] = StoneColor.EMPTY;
+                    board[i, j] = StoneColor.EMPTY;
                 }
             }
         }
@@ -86,7 +73,7 @@ namespace FiveInRow
         public bool Drop(int x, int y)
         {
             //only allow drops to an empty point
-            if (_stones[x, y] == StoneColor.EMPTY)
+            if (board[x, y] == StoneColor.EMPTY)
             {
                 InsertMove(x, y);
                 return true;
@@ -114,7 +101,7 @@ namespace FiveInRow
             this.Moves.Add(data);
 
             //add stone to board
-            _stones[x, y] = this.CurrentMoveColor;
+            board[x, y] = this.CurrentMoveColor;
         }
 
         /// <summary>
@@ -123,7 +110,7 @@ namespace FiveInRow
         public void RemoveLastMove()
         {
             int[] last = this.Moves[this.StoneCount - 1];
-            _stones[last[0], last[1]] = StoneColor.EMPTY;
+            board[last[0], last[1]] = StoneColor.EMPTY;
             this.Moves.RemoveAt(this.StoneCount - 1);
             this.StoneCount--;
         }
@@ -155,7 +142,7 @@ namespace FiveInRow
                 //judge over5
                 if (result.Max() > 5)
                 {
-                    throw new FoulException(FoulType.over5);
+                    throw new FoulException(FoulTypes.over5);
                 }
                 else
                 {
@@ -185,7 +172,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b - xl] == this.CurrentMoveColor)
+                if (board[xl, b - xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -216,7 +203,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b + xl] == this.CurrentMoveColor)
+                if (board[xl, b + xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -241,7 +228,7 @@ namespace FiveInRow
             while (true)
             {
                 tempX--;
-                if (tempX < 0 || _stones[tempX, y] != CurrentMoveColor)
+                if (tempX < 0 || board[tempX, y] != CurrentMoveColor)
                 {
                     break;
                 }
@@ -256,7 +243,7 @@ namespace FiveInRow
             while (true)
             {
                 tempX++;
-                if (tempX > 14 || _stones[tempX, y] != CurrentMoveColor)
+                if (tempX > 14 || board[tempX, y] != CurrentMoveColor)
                 {
                     break;
                 }
@@ -280,7 +267,7 @@ namespace FiveInRow
 
             while (yl <= rightLimit)
             {
-                if (_stones[x, yl] == this.CurrentMoveColor)
+                if (board[x, yl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -314,7 +301,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b - xl] == this.CurrentMoveColor)
+                if (board[xl, b - xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -345,7 +332,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, b + xl] == this.CurrentMoveColor)
+                if (board[xl, b + xl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -372,7 +359,7 @@ namespace FiveInRow
 
             while (xl <= rightLimit)
             {
-                if (_stones[xl, y] == this.CurrentMoveColor)
+                if (board[xl, y] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -400,7 +387,7 @@ namespace FiveInRow
 
             while (yl <= rightLimit)
             {
-                if (_stones[x, yl] == this.CurrentMoveColor)
+                if (board[x, yl] == this.CurrentMoveColor)
                 {
                     count++;
                     if (count > Max)
@@ -427,18 +414,18 @@ namespace FiveInRow
     /// </summary>
     public class FoulException : Exception
     {
-        public FoulType Type { get; set; }
+        public FoulTypes type { get; set; }
 
-        public FoulException(FoulType fType)
+        public FoulException(FoulTypes foulType)
         {
-            this.Type = fType;
+            type = foulType;
         }
     }
 
     /// <summary>
     /// Type of foul
     /// </summary>
-    public enum FoulType
+    public enum FoulTypes
     {
         double3,
         double4,
