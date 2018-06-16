@@ -45,16 +45,14 @@ namespace FiveInRow
         public List<int[]> Moves { get; } = new List<int[]>(225);
 
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        // Constructor
         public Board()
         {
-            //initialise
+            // initialise
             StoneCount = 0;
             IsProGame = false;
 
-            //set every point to empty
+            // set every point to empty
             for (int i = 0; i < BoardSize; i++)
             {
                 for (int j = 0; j < BoardSize; j++)
@@ -122,20 +120,24 @@ namespace FiveInRow
         /// <returns>true: game over / false: continue to game</returns>
         public bool Judge()
         {
+
+            if (Moves.Count < 9)
+            {
+                return false;
+            }
+
             //judge 5
             int[] last = this.Moves.Last();
             int x = last[0], y = last[1];
 
             int[] result = new int[4];
 
-            result[0] = JudgeHorizontal(x, y);
-            result[1] = JudgeVertical(x, y);
-            result[2] = JudgeLeftSlash(x, y);
-            result[3] = JudgeRightSlash(x, y);
+            result[0] = CountHorizontal(x, y);
+            result[1] = CountVertical(x, y);
+            result[2] = CountSlash(x, y);
+            result[3] = CountBackSlash(x, y);
 
-            if (result.Contains(5))
-                return true;
-
+         
             //pro game & black
             if (this.IsProGame && this.CurrentMoveColor == StoneColor.BALCK)
             {
@@ -157,254 +159,335 @@ namespace FiveInRow
             return false;
         }
 
-        #region Judge4Directions
-        int JudgeLeftSlash(int x, int y)
+       
+
+    
+
+        int CountHorizontal(int x, int y)
         {
-            int b = x + y;
-            int leftLimit = b - 14 > 0 ? b - 14 : 0;
-            int rightLimit = 14 > b ? b : 14;
-
-            leftLimit = leftLimit > x - 4 ? leftLimit : x - 4;
-            rightLimit = rightLimit < x + 4 ? rightLimit : x + 4;
-
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
-            {
-                if (board[xl, b - xl] == this.CurrentMoveColor)
-                {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
-                }
-                else
-                {
-                    count = 0;
-                }
-                xl++;
-            }
-            return Max;
+            return CountHorizontal(x, y, 0, 0);
         }
-
-        int JudgeRightSlash(int x, int y)
-        {
-            int b = y - x;
-
-            int leftLimit = -b > 0 ? -b : 0;
-            int rightLimit = 14 - b > 14 ? 14 : 14 - b;
-            leftLimit = leftLimit < x - 4 ? x - 4 : leftLimit;
-            rightLimit = rightLimit < x + 4 ? rightLimit : x + 4;
-
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
-            {
-                if (board[xl, b + xl] == this.CurrentMoveColor)
-                {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
-                }
-                else
-                {
-                    count = 0;
-                }
-                xl++;
-            }
-            return Max;
-        }
-
-        int JudgeHorizontal(int x, int y)
+        int CountHorizontal(int x, int y, int countBreak, int countBreakLimmit)
         {
             int count = 1;
             int tempX = x;
 
+            //count left part
             while (true)
             {
                 tempX--;
-                if (tempX < 0 || board[tempX, y] != CurrentMoveColor)
+
+                if (tempX < 0)
                 {
                     break;
                 }
                 else
                 {
-                    count++;
+                    if (board[tempX, y] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[tempX, y] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
+            //reset
             tempX = x;
 
+            //count right part
             while (true)
             {
                 tempX++;
-                if (tempX > 14 || board[tempX, y] != CurrentMoveColor)
+
+                if (tempX > 14)
                 {
                     break;
                 }
                 else
                 {
-                    count++;
+                    if (board[tempX, y] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[tempX, y] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
             return count;
         }
 
-        int JudgeVertical(int x, int y)
+        int CountVertical(int x, int y)
         {
+            return CountVertical(x, y, 0, 0);
+        }
+        int CountVertical(int x, int y, int countBreak, int countBreakLimmit)
+        {
+            int count = 1;
+            int tempY = y;
 
-            int leftLimit = y - 4 > 0 ? y - 4 : 0;
-            int rightLimit = y + 4 > 14 ? 14 : y + 4;
-
-            int yl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (yl <= rightLimit)
+            while (true)
             {
-                if (board[x, yl] == this.CurrentMoveColor)
+                tempY--;
+
+                if (tempY < 0)
                 {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
+                    break;
                 }
                 else
                 {
-                    count = 0;
-                }
-                yl++;
-            }
-            return Max;
-        }
-        #endregion
-
-        bool Judge44(int x, int y)
-        {
-            return false;
-        }
-
-        int JudgeLeftSlash44(int x, int y)
-        {
-            int b = x + y;
-            int leftLimit = b - 14 > 0 ? b - 14 : 0;
-            int rightLimit = 14 > b ? b : 14;
-
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
-            {
-                if (board[xl, b - xl] == this.CurrentMoveColor)
-                {
-                    count++;
-                    if (count > Max)
+                    if (board[x, tempY] == CurrentMoveColor)
                     {
-                        Max = count;
+                        count++;
                     }
+                    else if (board[x, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            //reset
+            tempY = y;
+            
+            while (true)
+            {
+                tempY++;
+
+                if (tempY > 14)
+                {
+                    break;
                 }
                 else
                 {
-                    count = 0;
+                    if (board[x, tempY] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[x, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                xl++;
             }
-            return Max;
+
+            return count;
         }
 
-        int JudgeRightSlash44(int x, int y)
+        int CountSlash(int x, int y)
         {
-            int b = y - x;
+            return CountSlash(x, y, 0, 0);
+        }
+        int CountSlash(int x, int y, int countBreak, int countBreakLimmit)
+        {
+            int count = 1;
+            int tempX = x;
+            int tempY = y;
 
-            int leftLimit = -b > 0 ? -b : 0;
-            int rightLimit = 14 - b > 14 ? 14 : 14 - b;
-            leftLimit = leftLimit < x - 4 ? x - 4 : leftLimit;
-            rightLimit = rightLimit < x + 4 ? rightLimit : x + 4;
-
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
+            while (true)
             {
-                if (board[xl, b + xl] == this.CurrentMoveColor)
+                tempX--;
+                tempY++;
+
+                if (tempX < 0 || tempY > 14)
                 {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
+                    break;
                 }
                 else
                 {
-                    count = 0;
-                }
-                xl++;
-            }
-            return Max;
-        }
-
-        int JudgeHorizontal44(int x, int y)
-        {
-            int leftLimit = x - 4 > 0 ? x - 4 : 0;
-            int rightLimit = x + 4 > 14 ? 14 : x + 4;
-
-            int xl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (xl <= rightLimit)
-            {
-                if (board[xl, y] == this.CurrentMoveColor)
-                {
-                    count++;
-                    if (count > Max)
+                    if (board[tempX, tempY] == CurrentMoveColor)
                     {
-                        Max = count;
+                        count++;
                     }
+                    else if (board[tempX, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            //reset
+            tempX = x;
+            tempY = y;
+
+            while (true)
+            {
+                tempX++;
+                tempY--;
+
+                if (tempX > 14 || tempY < 0)
+                {
+                    break;
                 }
                 else
                 {
-                    count = 0;
+                    if (board[tempX, tempY] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[tempX, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                xl++;
             }
-            return Max;
+
+            return count;
         }
 
-        int JudgeVertical44(int x, int y)
+        int CountBackSlash(int x, int y)
         {
+            return CountBackSlash(x, y, 0, 0);
+        }
+        int CountBackSlash(int x, int y, int countBreak, int countBreakLimmit)
+        {
+            int count = 1;
+            int tempX = x;
+            int tempY = y;
 
-            int leftLimit = y - 4 > 0 ? y - 4 : 0;
-            int rightLimit = y + 4 > 14 ? 14 : y + 4;
-
-            int yl = leftLimit;
-            int count = 0, Max = 0;
-
-            while (yl <= rightLimit)
+            while (true)
             {
-                if (board[x, yl] == this.CurrentMoveColor)
+                tempX--;
+                tempY--;
+
+                if (tempX < 0 || tempY < 0)
                 {
-                    count++;
-                    if (count > Max)
-                    {
-                        Max = count;
-                    }
+                    break;
                 }
                 else
                 {
-                    count = 0;
+                    if (board[tempX, tempY] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[tempX, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                yl++;
             }
-            return Max;
+            //reset
+            tempX = x;
+            tempY = y;
+            
+            while (true)
+            {
+                tempX++;
+                tempY++;
+
+                if (tempX > 14 || tempY > 14)
+                {
+                    break;
+                }
+                else
+                {
+                    if (board[tempX, tempY] == CurrentMoveColor)
+                    {
+                        count++;
+                    }
+                    else if (board[tempX, tempY] == StoneColor.EMPTY)
+                    {
+                        if (countBreak < countBreakLimmit)
+                        {
+                            countBreak++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return count;
         }
-
-
+        
         #endregion
 
     }
