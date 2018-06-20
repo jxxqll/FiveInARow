@@ -120,7 +120,6 @@ namespace FiveInRow
         /// <returns>true: game over / false: continue to game</returns>
         public bool Judge()
         {
-
             if (Moves.Count < 9)
             {
                 return false;
@@ -132,15 +131,20 @@ namespace FiveInRow
 
             int[] result = new int[4];
 
-            result[0] = CountHorizontal(x, y);
-            result[1] = CountVertical(x, y);
-            result[2] = CountSlash(x, y);
-            result[3] = CountBackSlash(x, y);
+            result[0] = CountHorizontal(x, y, 0);
+            result[1] = CountVertical(x, y, 0);
+            result[2] = CountSlash(x, y, 0);
+            result[3] = CountBackSlash(x, y, 0);
 
-         
             //pro game & black
             if (this.IsProGame && this.CurrentMoveColor == StoneColor.BALCK)
             {
+                //if 5-connected Black Win anyway
+                if (result.Contains(5))
+                {
+                    return true;
+                }
+
                 //judge over5
                 if (result.Max() > 5)
                 {
@@ -148,7 +152,7 @@ namespace FiveInRow
                 }
                 else
                 {
-
+                    Judge44Foul(x, y);
                 }
             }
             else //simple game
@@ -159,45 +163,52 @@ namespace FiveInRow
             return false;
         }
 
-       
-
-    
-
-        int CountHorizontal(int x, int y)
+        int CountHorizontal(int x, int y, int countBreakLimmit)
         {
-            return CountHorizontal(x, y, 0, 0);
+            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, null, (int c) => { return ++c; }, null);
         }
-        int CountHorizontal(int x, int y, int countBreak, int countBreakLimmit)
-        {
-            int count = 1;
-            int tempX = x;
 
-            //count left part
+        int CountVertical(int x, int y, int countBreakLimmit)
+        {
+            return Count(x, y, countBreakLimmit, null, (int c) => { return --c; }, null, (int c) => { return ++c; });
+        }
+
+        int CountSlash(int x, int y, int countBreakLimmit)
+        {
+            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; }, (int c) => { return --c; });
+        }
+
+        int CountBackSlash(int x, int y, int countBreakLimmit)
+        {
+            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; });
+        }
+
+        void Count(int x, int y, ref int count, ref int countBreak, int countBreakLimmit, Func<int, int> countUpX, Func<int, int> countUpY)
+        {
             while (true)
             {
-                tempX--;
+                if (countUpX != null)
+                {
+                    x = countUpX(x);
+                }
+                if (countUpY != null)
+                {
+                    y = countUpY(y);
+                }
 
-                if (tempX < 0)
+                if (x < 0 || x > 14 || y < 0 || y > 14)
                 {
                     break;
                 }
                 else
                 {
-                    if (board[tempX, y] == CurrentMoveColor)
+                    if (board[x, y] == CurrentMoveColor)
                     {
                         count++;
                     }
-                    else if (board[tempX, y] == StoneColor.EMPTY)
+                    else if (board[x, y] == StoneColor.EMPTY && countBreak < countBreakLimmit)
                     {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-
+                        countBreak++;
                     }
                     else
                     {
@@ -205,289 +216,51 @@ namespace FiveInRow
                     }
                 }
             }
+        }
 
-            //reset
-            tempX = x;
+        int Count(int x, int y, int countBreak, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
+        {
+            int count = 1;
 
-            //count right part
-            while (true)
+            Count(x, y, ref count, ref countBreak, countBreakLimmit, countUpX1, countUpY1);
+            Count(x, y, ref count, ref countBreak, countBreakLimmit, countUpX2, countUpY2);
+
+            return count;
+        }
+
+        int Count(int x, int y, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
+        {
+            int count = 0;
+
+            int countA = Count(x, y, 0, countBreakLimmit, countUpX1, countUpY1, countUpX2, countUpY2);
+
+            if (countBreakLimmit > 0)
             {
-                tempX++;
-
-                if (tempX > 14)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[tempX, y] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[tempX, y] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                int countB = Count(x, y, 0, countBreakLimmit, countUpX2, countUpY2, countUpX1, countUpY1);
+                count = countA > countB ? countA : countB;
+            }
+            else
+            {
+                count = countA;
             }
 
             return count;
         }
 
-        int CountVertical(int x, int y)
+        void Judge44Foul(int x, int y)
         {
-            return CountVertical(x, y, 0, 0);
-        }
-        int CountVertical(int x, int y, int countBreak, int countBreakLimmit)
-        {
-            int count = 1;
-            int tempY = y;
+            int[] result = new int[4];
 
-            while (true)
+            result[0] = CountHorizontal(x, y, 1);
+            result[1] = CountVertical(x, y, 1);
+            result[2] = CountSlash(x, y, 1);
+            result[3] = CountBackSlash(x, y, 1);
+
+            if (result.Count(r => r == 4) >= 2)
             {
-                tempY--;
-
-                if (tempY < 0)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[x, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[x, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                throw new FoulException(FoulTypes.double4);
             }
-            //reset
-            tempY = y;
-            
-            while (true)
-            {
-                tempY++;
-
-                if (tempY > 14)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[x, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[x, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return count;
         }
-
-        int CountSlash(int x, int y)
-        {
-            return CountSlash(x, y, 0, 0);
-        }
-        int CountSlash(int x, int y, int countBreak, int countBreakLimmit)
-        {
-            int count = 1;
-            int tempX = x;
-            int tempY = y;
-
-            while (true)
-            {
-                tempX--;
-                tempY++;
-
-                if (tempX < 0 || tempY > 14)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[tempX, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[tempX, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            //reset
-            tempX = x;
-            tempY = y;
-
-            while (true)
-            {
-                tempX++;
-                tempY--;
-
-                if (tempX > 14 || tempY < 0)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[tempX, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[tempX, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return count;
-        }
-
-        int CountBackSlash(int x, int y)
-        {
-            return CountBackSlash(x, y, 0, 0);
-        }
-        int CountBackSlash(int x, int y, int countBreak, int countBreakLimmit)
-        {
-            int count = 1;
-            int tempX = x;
-            int tempY = y;
-
-            while (true)
-            {
-                tempX--;
-                tempY--;
-
-                if (tempX < 0 || tempY < 0)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[tempX, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[tempX, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            //reset
-            tempX = x;
-            tempY = y;
-            
-            while (true)
-            {
-                tempX++;
-                tempY++;
-
-                if (tempX > 14 || tempY > 14)
-                {
-                    break;
-                }
-                else
-                {
-                    if (board[tempX, tempY] == CurrentMoveColor)
-                    {
-                        count++;
-                    }
-                    else if (board[tempX, tempY] == StoneColor.EMPTY)
-                    {
-                        if (countBreak < countBreakLimmit)
-                        {
-                            countBreak++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return count;
-        }
-        
         #endregion
 
     }

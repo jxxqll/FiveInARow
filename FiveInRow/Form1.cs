@@ -242,6 +242,11 @@ namespace FiveInRow
             Regret();
         }
 
+        private void progameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _board.IsProGame = true;
+        }
+
         /// <summary>
         /// Hot Key Cntrol
         /// </summary>
@@ -306,8 +311,9 @@ namespace FiveInRow
                 Application.Exit();
             }
         }
+
         #endregion
 
-
+        
     }
 }

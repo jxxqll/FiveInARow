@@ -36,6 +36,7 @@ namespace FiveInRow
             this.newGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regretToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitF4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.progameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,8 +44,9 @@ namespace FiveInRow
             // 
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.operationToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 860);
+            this.operationToolStripMenuItem,
+            this.progameToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 906);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(900, 24);
             this.menuStrip1.TabIndex = 0;
@@ -63,22 +65,29 @@ namespace FiveInRow
             // newGameToolStripMenuItem
             // 
             this.newGameToolStripMenuItem.Name = "newGameToolStripMenuItem";
-            this.newGameToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.newGameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newGameToolStripMenuItem.Text = "New Game F5";
             this.newGameToolStripMenuItem.Click += new System.EventHandler(this.newGameToolStripMenuItem_Click);
             // 
             // regretToolStripMenuItem
             // 
             this.regretToolStripMenuItem.Name = "regretToolStripMenuItem";
-            this.regretToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.regretToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.regretToolStripMenuItem.Text = "Regret F3";
             this.regretToolStripMenuItem.Click += new System.EventHandler(this.regretToolStripMenuItem_Click);
             // 
             // exitF4ToolStripMenuItem
             // 
             this.exitF4ToolStripMenuItem.Name = "exitF4ToolStripMenuItem";
-            this.exitF4ToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.exitF4ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitF4ToolStripMenuItem.Text = "Exit F4";
+            // 
+            // progameToolStripMenuItem
+            // 
+            this.progameToolStripMenuItem.Name = "progameToolStripMenuItem";
+            this.progameToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
+            this.progameToolStripMenuItem.Text = "Progame";
+            this.progameToolStripMenuItem.Click += new System.EventHandler(this.progameToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -111,7 +120,7 @@ namespace FiveInRow
 
         private System.Windows.Forms.ToolStripMenuItem regretToolStripMenuItem;
         private ToolStripMenuItem exitF4ToolStripMenuItem;
-
+        private ToolStripMenuItem progameToolStripMenuItem;
     }
 
 }
