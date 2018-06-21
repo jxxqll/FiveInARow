@@ -165,24 +165,34 @@ namespace FiveInRow
 
         int CountHorizontal(int x, int y, int countBreakLimmit)
         {
-            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, null, (int c) => { return ++c; }, null);
+            return Count2SidesInALine(x, y, countBreakLimmit, (int c) => { return --c; }, null, (int c) => { return ++c; }, null);
         }
 
         int CountVertical(int x, int y, int countBreakLimmit)
         {
-            return Count(x, y, countBreakLimmit, null, (int c) => { return --c; }, null, (int c) => { return ++c; });
+            return Count2SidesInALine(x, y, countBreakLimmit, null, (int c) => { return --c; }, null, (int c) => { return ++c; });
         }
 
         int CountSlash(int x, int y, int countBreakLimmit)
         {
-            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; }, (int c) => { return --c; });
+            return Count2SidesInALine(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; }, (int c) => { return --c; });
         }
 
         int CountBackSlash(int x, int y, int countBreakLimmit)
         {
-            return Count(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; });
+            return Count2SidesInALine(x, y, countBreakLimmit, (int c) => { return --c; }, (int c) => { return --c; }, (int c) => { return ++c; }, (int c) => { return ++c; });
         }
 
+        /// <summary>
+        /// Base count method
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="count"></param>
+        /// <param name="countBreak"></param>
+        /// <param name="countBreakLimmit"></param>
+        /// <param name="countUpX"></param>
+        /// <param name="countUpY"></param>
         void Count(int x, int y, ref int count, ref int countBreak, int countBreakLimmit, Func<int, int> countUpX, Func<int, int> countUpY)
         {
             while (true)
@@ -218,7 +228,19 @@ namespace FiveInRow
             }
         }
 
-        int Count(int x, int y, int countBreak, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="countBreak"></param>
+        /// <param name="countBreakLimmit"></param>
+        /// <param name="countUpX1"></param>
+        /// <param name="countUpY1"></param>
+        /// <param name="countUpX2"></param>
+        /// <param name="countUpY2"></param>
+        /// <returns></returns>
+        int CountInALine(int x, int y, int countBreak, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
         {
             int count = 1;
 
@@ -228,15 +250,32 @@ namespace FiveInRow
             return count;
         }
 
-        int Count(int x, int y, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="countBreakLimmit"></param>
+        /// <param name="countUpX1"></param>
+        /// <param name="countUpY1"></param>
+        /// <param name="countUpX2"></param>
+        /// <param name="countUpY2"></param>
+        /// <returns></returns>
+        int Count2SidesInALine(int x, int y, int countBreakLimmit, Func<int, int> countUpX1, Func<int, int> countUpY1, Func<int, int> countUpX2, Func<int, int> countUpY2)
         {
             int count = 0;
 
-            int countA = Count(x, y, 0, countBreakLimmit, countUpX1, countUpY1, countUpX2, countUpY2);
+            int countA = CountInALine(x, y, 0, countBreakLimmit, countUpX1, countUpY1, countUpX2, countUpY2);
 
             if (countBreakLimmit > 0)
             {
-                int countB = Count(x, y, 0, countBreakLimmit, countUpX2, countUpY2, countUpX1, countUpY1);
+                int countB = CountInALine(x, y, 0, countBreakLimmit, countUpX2, countUpY2, countUpX1, countUpY1);
+
+                if (countA == 4 && countB == 4)
+                {
+                    //judge double-4 foul in a line
+                    throw new FoulException(FoulTypes.double4);
+                }
                 count = countA > countB ? countA : countB;
             }
             else
@@ -247,6 +286,12 @@ namespace FiveInRow
             return count;
         }
 
+        /// <summary>
+        /// Method for judging a double-4 foul.
+        /// FoulException will be throughed when there is a foul.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         void Judge44Foul(int x, int y)
         {
             int[] result = new int[4];
@@ -260,6 +305,11 @@ namespace FiveInRow
             {
                 throw new FoulException(FoulTypes.double4);
             }
+        }
+
+        void Judge33Foul(int x, int y)
+        {
+            
         }
         #endregion
 

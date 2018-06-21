@@ -152,7 +152,7 @@ namespace FiveInRow
                 int x = CalculateAxis(p.X); //X-Axis
                 int y = CalculateAxis(p.Y); //Y-Axis
 
-                if (!_board.IsGameOver && x > 0 && y > 0) //game is not over and (x,y) is a valid value
+                if (!_board.IsGameOver && x >= 0 && y >= 0) //game is not over and (x,y) is a valid value
                 {
                     if (_board.Drop(x, y)) //is able to drop to that point
                     {
